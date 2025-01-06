@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'grouped_expenses_list.dart';
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 
 class ExpensesView extends StatelessWidget {
   final String tricountId;
@@ -34,13 +35,14 @@ class ExpensesView extends StatelessWidget {
         }
 
         // Calcul des totaux
+        final currentUserId = FirebaseAuth.instance.currentUser?.uid;
         double totalExpenses = 0;
         double myExpenses = 0;
         for (var expense in expenses) {
           final data = expense.data() as Map<String, dynamic>;
           final value = double.tryParse(data['value'].toString()) ?? 0;
           totalExpenses += value;
-          if (data['paidBy'] == 'Julia') { // Remplace par le nom de l'utilisateur actuel
+          if (data['userId'] == currentUserId) {
             myExpenses += value;
           }
         }
