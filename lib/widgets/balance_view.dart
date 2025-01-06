@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/balance_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BalanceView extends StatelessWidget {
   final String tricountId;
@@ -12,36 +13,38 @@ class BalanceView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-
     return FutureBuilder<Map<String, double>>(
       future: BalanceService.calculateBalances(tricountId),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
+      builder: (context, balanceSnapshot) {
+        if (balanceSnapshot.hasError) {
           return const Center(child: Text('Une erreur est survenue'));
         }
 
-        if (!snapshot.hasData) {
+        if (!balanceSnapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final balances = snapshot.data!;
+        final balances = balanceSnapshot.data!;
+        final currentUser = FirebaseAuth.instance.currentUser;
 
         return ListView.builder(
           itemCount: balances.length,
           itemBuilder: (context, index) {
-            final person = balances.keys.elementAt(index);
-            final balance = balances[person]!;
-            final isCurrentUser = person == currentUserId;
+            final name = balances.keys.elementAt(index);
+            final balance = balances[name]!;
+            final isCurrentUser = currentUser?.displayName == name;
 
             return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              margin: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8
+              ),
               child: ListTile(
                 leading: CircleAvatar(
-                  child: Text(person[0].toUpperCase()),
+                  child: Text(name[0].toUpperCase()),
                 ),
                 title: Text(
-                  isCurrentUser ? 'Vous' : person,
+                  isCurrentUser ? 'Vous' : name,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
