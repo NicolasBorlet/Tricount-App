@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../widgets/expenses_view.dart';
+import '../widgets/balance_view.dart';
+import '../widgets/photos_view.dart';
 
 class TricountDetailScreen extends StatefulWidget {
   final String tricountId;
@@ -140,46 +143,11 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
   Widget _buildSelectedView() {
     switch (_selectedSegment) {
       case 0:
-        return StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('tricounts')
-              .doc(widget.tricountId)
-              .collection('expenses')
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return const Center(child: Text('Une erreur est survenue'));
-            }
-
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final expenses = snapshot.data!.docs;
-            if (expenses.isEmpty) {
-              return const Center(child: Text('Aucune dépense'));
-            }
-
-            return ListView.builder(
-              itemCount: expenses.length,
-              itemBuilder: (context, index) {
-                final data = expenses[index].data() as Map<String, dynamic>;
-                return ListTile(
-                  title: Text(data['name'] ?? 'Sans nom'),
-                  subtitle: Text('Payé par: ${data['paidBy'] ?? 'Non spécifié'}'),
-                  trailing: Text(
-                    '${data['value']?.toString() ?? '0'} €',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                );
-              },
-            );
-          },
-        );
+        return ExpensesView(tricountId: widget.tricountId);
       case 1:
-        return const Center(child: Text('Vue Equilibre'));
+        return BalanceView(tricountId: widget.tricountId);
       case 2:
-        return const Center(child: Text('Vue Photos'));
+        return PhotosView(tricountId: widget.tricountId);
       default:
         return const SizedBox.shrink();
     }
