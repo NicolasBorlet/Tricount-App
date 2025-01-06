@@ -33,8 +33,6 @@ class _AuthScreenState extends State<AuthScreen> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      print('Firebase Error Code: ${e.code}');
-      print('Firebase Error Message: ${e.message}');
       String message;
       switch (e.code) {
         case 'email-already-in-use':

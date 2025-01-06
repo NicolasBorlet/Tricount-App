@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class BalanceService {
   static Future<Map<String, double>> calculateBalances(String tricountId) async {
@@ -12,16 +11,6 @@ class BalanceService {
     final participants = (tricountDoc.data()?['participants'] as List<dynamic>? ?? [])
         .map((p) => p as Map<String, dynamic>)
         .toList();
-
-    final nameToId = {
-      for (var p in participants)
-        p['name'].toString(): p['id'].toString()
-    };
-
-    final idToName = {
-      for (var p in participants)
-        p['id'].toString(): p['name'].toString()
-    };
 
     // Initialiser les balances avec les noms (pas les IDs)
     Map<String, double> paidAmounts = {};
@@ -58,11 +47,6 @@ class BalanceService {
       final amountPaid = paidAmounts[name] ?? 0;
       balances[name] = amountPaid - sharePerPerson;
     }
-
-    print('Total amount: $totalAmount');
-    print('Share per person: $sharePerPerson');
-    print('Paid amounts: $paidAmounts');
-    print('Final balances: $balances');
 
     return balances;
   }

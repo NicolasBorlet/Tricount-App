@@ -172,7 +172,7 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
         onPressed: () => _showAddExpenseDialog(context),
         child: const Icon(Icons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 

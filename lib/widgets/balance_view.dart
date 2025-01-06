@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/balance_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BalanceView extends StatelessWidget {
   final String tricountId;
