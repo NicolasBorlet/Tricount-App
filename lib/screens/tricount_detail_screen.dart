@@ -23,60 +23,93 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
     String? expenseName;
     String? paidBy;
     String? value;
+    DateTime selectedDate = DateTime.now();
+    StateSetter? dialogState;
 
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Nouvelle dépense'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              autofocus: true,
-              decoration: const InputDecoration(
-                hintText: 'Nom de la dépense',
-              ),
-              onChanged: (val) => expenseName = val,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          dialogState = setDialogState;
+          return AlertDialog(
+            title: const Text('Nouvelle dépense'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  autofocus: true,
+                  decoration: const InputDecoration(
+                    hintText: 'Nom de la dépense',
+                  ),
+                  onChanged: (val) => expenseName = val,
+                ),
+                TextField(
+                  decoration: const InputDecoration(
+                    hintText: 'Payé par',
+                  ),
+                  onChanged: (val) => paidBy = val,
+                ),
+                TextField(
+                  decoration: const InputDecoration(
+                    hintText: 'Montant',
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (val) => value = val,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Text('Date: '),
+                    TextButton(
+                      onPressed: () async {
+                        final DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: selectedDate.isAfter(DateTime(2025))
+                              ? DateTime(2025)
+                              : selectedDate,
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2025, 12, 31),
+                        );
+                        if (picked != null && picked != selectedDate) {
+                          dialogState?.call(() {
+                            selectedDate = picked;
+                          });
+                        }
+                      },
+                      child: Text(
+                        '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            TextField(
-              decoration: const InputDecoration(
-                hintText: 'Payé par',
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Annuler'),
               ),
-              onChanged: (val) => paidBy = val,
-            ),
-            TextField(
-              decoration: const InputDecoration(
-                hintText: 'Montant',
+              TextButton(
+                onPressed: () async {
+                  if (expenseName?.isNotEmpty ?? false) {
+                    await FirebaseFirestore.instance
+                        .collection('tricounts')
+                        .doc(widget.tricountId)
+                        .collection('expenses')
+                        .add({
+                          'name': expenseName,
+                          'paidBy': paidBy,
+                          'value': value,
+                          'createdAt': Timestamp.fromDate(selectedDate),
+                        });
+                    if (context.mounted) Navigator.pop(context);
+                  }
+                },
+                child: const Text('Ajouter'),
               ),
-              keyboardType: TextInputType.number,
-              onChanged: (val) => value = val,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () async {
-              if (expenseName?.isNotEmpty ?? false) {
-                await FirebaseFirestore.instance
-                    .collection('tricounts')
-                    .doc(widget.tricountId)
-                    .collection('expenses')
-                    .add({
-                      'name': expenseName,
-                      'paidBy': paidBy,
-                      'value': value,
-                      'createdAt': FieldValue.serverTimestamp(),
-                    });
-                if (context.mounted) Navigator.pop(context);
-              }
-            },
-            child: const Text('Ajouter'),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

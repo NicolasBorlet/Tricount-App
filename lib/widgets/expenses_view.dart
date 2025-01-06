@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'grouped_expenses_list.dart';
 
 class ExpensesView extends StatelessWidget {
   final String tricountId;
@@ -16,6 +17,7 @@ class ExpensesView extends StatelessWidget {
           .collection('tricounts')
           .doc(tricountId)
           .collection('expenses')
+          .orderBy('createdAt', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -31,20 +33,7 @@ class ExpensesView extends StatelessWidget {
           return const Center(child: Text('Aucune dépense'));
         }
 
-        return ListView.builder(
-          itemCount: expenses.length,
-          itemBuilder: (context, index) {
-            final data = expenses[index].data() as Map<String, dynamic>;
-            return ListTile(
-              title: Text(data['name'] ?? 'Sans nom'),
-              subtitle: Text('Payé par: ${data['paidBy'] ?? 'Non spécifié'}'),
-              trailing: Text(
-                '${data['value']?.toString() ?? '0'} €',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            );
-          },
-        );
+        return GroupedExpensesList(expenses: expenses);
       },
     );
   }
