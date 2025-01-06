@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../widgets/expenses_view.dart';
 import '../widgets/balance_view.dart';
 import '../widgets/photos_view.dart';
@@ -92,6 +93,7 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
               TextButton(
                 onPressed: () async {
                   if (expenseName?.isNotEmpty ?? false) {
+                    final currentUser = FirebaseAuth.instance.currentUser;
                     await FirebaseFirestore.instance
                         .collection('tricounts')
                         .doc(widget.tricountId)
@@ -99,6 +101,7 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
                         .add({
                           'name': expenseName,
                           'paidBy': paidBy,
+                          'userId': currentUser?.uid,
                           'value': value,
                           'createdAt': Timestamp.fromDate(selectedDate),
                         });
