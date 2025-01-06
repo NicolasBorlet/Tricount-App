@@ -62,10 +62,24 @@ class GroupedExpensesList extends StatelessWidget {
               final data = expense.data() as Map<String, dynamic>;
               return ListTile(
                 title: Text(data['name'] ?? 'Sans nom'),
-                subtitle: Text('Payé par: ${data['paidBy'] ?? 'Non spécifié'}'),
+                subtitle: RichText(
+                  text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: [
+                      const TextSpan(text: 'Payé par: '),
+                      TextSpan(
+                        text: data['paidBy'] ?? 'Non spécifié',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
                 trailing: Text(
                   '${data['value']?.toString() ?? '0'} €',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               );
             }),

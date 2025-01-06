@@ -33,7 +33,77 @@ class ExpensesView extends StatelessWidget {
           return const Center(child: Text('Aucune dépense'));
         }
 
-        return GroupedExpensesList(expenses: expenses);
+        // Calcul des totaux
+        double totalExpenses = 0;
+        double myExpenses = 0;
+        for (var expense in expenses) {
+          final data = expense.data() as Map<String, dynamic>;
+          final value = double.tryParse(data['value'].toString()) ?? 0;
+          totalExpenses += value;
+          if (data['paidBy'] == 'Julia') { // Remplace par le nom de l'utilisateur actuel
+            myExpenses += value;
+          }
+        }
+
+        return Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Mes dépenses',
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${myExpenses.toStringAsFixed(2)} €',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Colors.grey[300],
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Dépenses totales',
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${totalExpenses.toStringAsFixed(2)} €',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: GroupedExpensesList(expenses: expenses),
+            ),
+          ],
+        );
       },
     );
   }
