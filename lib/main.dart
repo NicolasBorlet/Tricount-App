@@ -6,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/auth_screen.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +41,8 @@ class MyApp extends StatelessWidget {
           return const AuthScreen();
         },
       ),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 }

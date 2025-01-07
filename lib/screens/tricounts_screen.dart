@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'tricount_detail_screen.dart';  // Assurez-vous que ce fichier existe
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TricountsScreen extends StatelessWidget {
   const TricountsScreen({super.key});
@@ -62,7 +63,7 @@ class TricountsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tricounts'),
+        title: Text(AppLocalizations.of(context)!.tricounts),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
