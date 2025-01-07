@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'grouped_expenses_list.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ExpensesView extends StatelessWidget {
   final String tricountId;
@@ -56,8 +57,8 @@ class ExpensesView extends StatelessWidget {
                   Expanded(
                     child: Column(
                       children: [
-                        const Text(
-                          'Mes dépenses',
+                        Text(
+                          AppLocalizations.of(context)!.expenses,
                           style: TextStyle(
                             fontSize: 12,
                           ),

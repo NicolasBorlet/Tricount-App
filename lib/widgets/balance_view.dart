@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/balance_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BalanceView extends StatefulWidget {
   final String tricountId;
@@ -37,13 +38,13 @@ class _BalanceViewState extends State<BalanceView> with SingleTickerProviderStat
       children: [
         TabBar(
           controller: _tabController,
-          tabs: const [
+          tabs: [
             Tab(
               text: 'Général',
               icon: Icon(Icons.account_balance),
             ),
             Tab(
-              text: 'Suggestions',
+              text: AppLocalizations.of(context)!.suggestions,
               icon: Icon(Icons.payment),
             ),
           ],
