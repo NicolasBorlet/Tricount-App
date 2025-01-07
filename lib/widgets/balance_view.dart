@@ -53,7 +53,7 @@ class _BalanceViewState extends State<BalanceView> with SingleTickerProviderStat
             future: _balancesFuture,
             builder: (context, balanceSnapshot) {
               if (balanceSnapshot.hasError) {
-                return const Center(child: Text('Une erreur est survenue'));
+                return Center(child: Text('Erreur: ${balanceSnapshot.error}'));
               }
 
               if (!balanceSnapshot.hasData) {

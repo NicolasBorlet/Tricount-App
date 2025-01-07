@@ -94,8 +94,11 @@ class BalanceService {
       creditor['amount'] = (creditor['amount'] as double) - paymentAmount;
 
       // Retirer les personnes qui ont soldé leur compte
-      if ((debtor['amount'] as double) < 0.01) debtors.removeAt(0);
-      if ((creditor['amount'] as double) < 0.01) creditors.removeAt(0);
+      final debtorAmount = debtor['amount'] as double;
+      final creditorAmount = creditor['amount'] as double;
+
+      if (debtorAmount.abs() < 0.01) debtors.removeAt(0);
+      if (creditorAmount.abs() < 0.01) creditors.removeAt(0);
     }
 
     return payments;
