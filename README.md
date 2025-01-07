@@ -2,6 +2,26 @@
 
 A Flutter application for managing shared expenses between friends, roommates, or any group. Built with Flutter and Firebase.
 
+## Screenshots
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+  <img src="assets/A.png" width="200">
+  <img src="assets/B.png" width="200">
+  <img src="assets/C.png" width="200">
+  <img src="assets/D.png" width="200">
+  <img src="assets/E.png" width="200">
+  <img src="assets/F.png" width="200">
+  <img src="assets/G.png" width="200">
+  <img src="assets/H.png" width="200">
+  <img src="assets/I.png" width="200">
+  <img src="assets/J.png" width="200">
+  <img src="assets/K.png" width="200">
+  <img src="assets/L.png" width="200">
+  <img src="assets/M.png" width="200">
+  <img src="assets/N.png" width="200">
+  <img src="assets/O.png" width="200">
+</div>
+
 ## Features
 
 ### Authentication
