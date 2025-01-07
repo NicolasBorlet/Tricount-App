@@ -117,6 +117,122 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
     );
   }
 
+  Future<void> _showInviteParticipantDialog(BuildContext context) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    await showDialog(
+      context: context,
+      builder: (context) => StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .collection('friends')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const AlertDialog(
+              content: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          final friends = snapshot.data!.docs;
+
+          return AlertDialog(
+            title: const Text('Inviter des participants'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: friends.isEmpty
+                  ? const Text('Vous n\'avez pas encore d\'amis')
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: friends.length,
+                      itemBuilder: (context, index) {
+                        final friend = friends[index].data() as Map<String, dynamic>;
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(
+                              friend['photoUrl'] ?? 'https://via.placeholder.com/150',
+                            ),
+                          ),
+                          title: Text(friend['name'] ?? ''),
+                          onTap: () => _inviteParticipant(
+                            context,
+                            friend['userId'],
+                            friend['name'],
+                            friend['photoUrl'],
+                          ),
+                        );
+                      },
+                    ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Fermer'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _inviteParticipant(
+    BuildContext context,
+    String userId,
+    String name,
+    String? photoUrl,
+  ) async {
+    try {
+      final tricountDoc = await FirebaseFirestore.instance
+          .collection('tricounts')
+          .doc(widget.tricountId)
+          .get();
+
+      final data = tricountDoc.data() as Map<String, dynamic>?;
+      final List<String> participantIds = List<String>.from(data?['participantIds'] ?? []);
+      final List<Map<String, dynamic>> participants = List<Map<String, dynamic>>.from(data?['participants'] ?? []);
+
+      if (participantIds.contains(userId)) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Cette personne participe déjà')),
+          );
+        }
+        return;
+      }
+
+      participantIds.add(userId);
+      participants.add({
+        'userId': userId,
+        'name': name,
+        'photoUrl': photoUrl,
+      });
+
+      await FirebaseFirestore.instance
+          .collection('tricounts')
+          .doc(widget.tricountId)
+          .update({
+        'participantIds': participantIds,
+        'participants': participants,
+      });
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Participant ajouté avec succès')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors de l\'ajout du participant')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,6 +248,12 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
             return Text(data?['name'] ?? 'Sans nom');
           },
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person_add),
+            onPressed: () => _showInviteParticipantDialog(context),
+          ),
+        ],
       ),
       body: Column(
         children: [
