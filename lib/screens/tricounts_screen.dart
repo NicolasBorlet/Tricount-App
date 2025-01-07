@@ -81,10 +81,14 @@ class TricountsScreen extends StatelessWidget {
           }
 
           final tricounts = snapshot.data!.docs;
-          print('Found ${tricounts.length} tricounts');
-          // Optionnel : Afficher les tricounts dans la console
-          for (var tricount in tricounts) {
-            print('Tricount: ${tricount.data()}');
+
+          if (tricounts.isEmpty) {
+            return const Center(
+              child: Text(
+                'Aucun tricount trouvé',
+                style: TextStyle(fontSize: 16),
+              ),
+            );
           }
 
           return ListView.builder(

@@ -1,16 +1,129 @@
-# tricount
+# Tricount - Expense Sharing App
 
-A new Flutter project.
+A Flutter application for managing shared expenses between friends, roommates, or any group. Built with Flutter and Firebase.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+### Authentication
+- Email/password authentication
+- User profile management
+- Secure Firebase authentication integration
+- Automatic session management
 
-A few resources to get you started if this is your first Flutter project:
+### User Profile
+- Customizable display name
+- Profile picture support
+- Friend management system
+- View and manage personal expenses
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Friends Management
+- Send friend requests
+- Accept/reject incoming friend requests
+- View friend list
+- Remove friends
+- Real-time friend request notifications
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Tricount Groups
+- Create expense sharing groups
+- Invite friends to groups
+- Accept/reject group invitations
+- Leave groups
+- Real-time group updates
+
+### Expense Management
+- Add new expenses with:
+  - Description
+  - Amount
+  - Payer
+  - Date
+  - Multiple participants
+- View expense history
+- Sort expenses by date
+- Filter expenses by participant
+- Real-time expense updates
+
+### Balance Calculation
+- Automatic balance calculation for all participants
+- View individual balances
+- See who owes what to whom
+- Smart debt simplification algorithm
+- Two view modes:
+  1. General overview (total balances)
+  2. Detailed payment suggestions
+
+### Multi-language Support
+- English
+- French
+- Spanish (partial)
+- Easily extensible to more languages
+
+### Real-time Updates
+- Live updates for:
+  - Expenses
+  - Balances
+  - Friend requests
+  - Group invitations
+  - Member changes
+
+### Navigation
+- Bottom navigation bar for easy access to:
+  - Tricounts list
+  - Notifications/Requests
+  - Profile
+
+### Security
+- Secure Firebase integration
+- Protected routes
+- Data validation
+- Error handling
+
+### UI/UX Features
+- Material Design 3
+- Responsive layout
+- Loading indicators
+- Error messages
+- Confirmation dialogs
+- Pull-to-refresh
+- Smooth animations
+- Cross-platform support (iOS, Android, Web)
+
+## Technical Details
+
+### Firebase Integration
+- Cloud Firestore for data storage
+- Firebase Authentication
+- Real-time listeners
+- Batch operations for data consistency
+
+### State Management
+- StreamBuilder for real-time updates
+- Efficient data caching
+- Optimistic UI updates
+
+### Code Organization
+- Feature-based architecture
+- Separate service layer
+- Reusable widgets
+- Localization support
+- Clean code principles
+
+## Installation
+
+1. Clone the repository
+2. Configure Firebase
+3. Run `flutter pub get`
+4. Update Firebase configuration files
+5. Run the app with `flutter run`
+
+## Dependencies
+- firebase_core
+- firebase_auth
+- cloud_firestore
+- flutter_localizations
+- (other dependencies in pubspec.yaml)
+
+## Contributing
+Feel free to submit issues and enhancement requests.
+
+## License
+This project is licensed under the terms specified in the LICENSE file.
