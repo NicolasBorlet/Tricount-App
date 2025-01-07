@@ -192,7 +192,6 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
 
       final data = tricountDoc.data() as Map<String, dynamic>?;
       final List<String> participantIds = List<String>.from(data?['participantIds'] ?? []);
-      final List<Map<String, dynamic>> participants = List<Map<String, dynamic>>.from(data?['participants'] ?? []);
 
       if (participantIds.contains(userId)) {
         if (context.mounted) {
@@ -203,17 +202,94 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
         return;
       }
 
-      participantIds.add(userId);
-      participants.add({
-        'userId': userId,
-        'name': name,
-        'photoUrl': photoUrl,
+      // Vérifier si une invitation est déjà en attente
+      final existingInvite = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('tricountInvites')
+          .doc(widget.tricountId)
+          .get();
+
+      if (existingInvite.exists) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Une invitation est déjà en attente')),
+          );
+        }
+        return;
+      }
+
+      // Envoyer l'invitation
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('tricountInvites')
+          .doc(widget.tricountId)
+          .set({
+        'tricountId': widget.tricountId,
+        'tricountName': data?['name'],
+        'invitedBy': FirebaseAuth.instance.currentUser?.displayName ?? 'Unknown',
+        'timestamp': FieldValue.serverTimestamp(),
       });
 
-      await FirebaseFirestore.instance
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invitation envoyée')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors de l\'envoi de l\'invitation')),
+        );
+      }
+    }
+  }
+
+  Future<void> _leaveTricountDialog(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Quitter le tricount'),
+        content: const Text('Êtes-vous sûr de vouloir quitter ce tricount ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Quitter'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _leaveTricount(context);
+    }
+  }
+
+  Future<void> _leaveTricount(BuildContext context) async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) return;
+
+      final tricountRef = FirebaseFirestore.instance
           .collection('tricounts')
-          .doc(widget.tricountId)
-          .update({
+          .doc(widget.tricountId);
+
+      final tricountDoc = await tricountRef.get();
+      final data = tricountDoc.data() as Map<String, dynamic>?;
+
+      final List<String> participantIds = List<String>.from(data?['participantIds'] ?? []);
+      final List<Map<String, dynamic>> participants = List<Map<String, dynamic>>.from(data?['participants'] ?? []);
+
+      participantIds.remove(currentUser.uid);
+      participants.removeWhere((p) => p['userId'] == currentUser.uid);
+
+      await tricountRef.update({
         'participantIds': participantIds,
         'participants': participants,
       });
@@ -221,13 +297,13 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
       if (context.mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Participant ajouté avec succès')),
+          const SnackBar(content: Text('Vous avez quitté le tricount')),
         );
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur lors de l\'ajout du participant')),
+          const SnackBar(content: Text('Erreur lors de la sortie du tricount')),
         );
       }
     }
@@ -252,6 +328,10 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
           IconButton(
             icon: const Icon(Icons.person_add),
             onPressed: () => _showInviteParticipantDialog(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.exit_to_app),
+            onPressed: () => _leaveTricountDialog(context),
           ),
         ],
       ),
