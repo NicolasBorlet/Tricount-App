@@ -73,9 +73,7 @@ class ProfileScreen extends StatelessWidget {
                         leading: const Icon(Icons.person),
                         title: Text(userData?['name'] ?? 'Non renseigné'),
                         trailing: const Icon(Icons.edit),
-                        onTap: () {
-                          // TODO: Implémenter l'édition du nom
-                        },
+                        onTap: () => _showEditNameDialog(context, userData?['name']),
                       ),
                       ListTile(
                         leading: const Icon(Icons.email),
@@ -266,6 +264,64 @@ class ProfileScreen extends StatelessWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erreur lors de l\'envoi de la demande')),
+        );
+      }
+    }
+  }
+
+  Future<void> _showEditNameDialog(BuildContext context, String? currentName) async {
+    final TextEditingController nameController = TextEditingController(text: currentName);
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Modifier le nom'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            hintText: 'Votre nom',
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final newName = nameController.text.trim();
+              if (newName.isNotEmpty) {
+                await _updateUserName(context, newName);
+              }
+              if (context.mounted) Navigator.pop(context);
+            },
+            child: const Text('Enregistrer'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _updateUserName(BuildContext context, String newName) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({'name': newName});
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nom mis à jour')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors de la mise à jour')),
         );
       }
     }

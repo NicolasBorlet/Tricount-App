@@ -90,14 +90,29 @@ class TricountsScreen extends StatelessWidget {
             itemCount: tricounts.length,
             itemBuilder: (context, index) {
               final tricount = tricounts[index].data() as Map<String, dynamic>;
-              return ListTile(
-                title: Text(tricount['name'] ?? 'Sans nom'),
-                leading: const Icon(Icons.account_balance_wallet),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TricountDetailScreen(
-                      tricountId: tricounts[index].id,
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                elevation: 2,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  title: Text(
+                    tricount['name'] ?? 'Sans nom',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  leading: CircleAvatar(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    child: const Icon(Icons.account_balance_wallet, color: Colors.white),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TricountDetailScreen(
+                        tricountId: tricounts[index].id,
+                      ),
                     ),
                   ),
                 ),
