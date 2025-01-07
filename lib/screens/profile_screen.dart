@@ -95,9 +95,7 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           IconButton(
                             icon: const Icon(Icons.person_add),
-                            onPressed: () {
-                              // TODO: Implémenter l'ajout d'ami
-                            },
+                            onPressed: () => _showAddFriendDialog(context),
                           ),
                         ],
                       ),
@@ -158,5 +156,107 @@ class ProfileScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Future<void> _showAddFriendDialog(BuildContext context) async {
+    final TextEditingController emailController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Ajouter un ami'),
+        content: TextField(
+          controller: emailController,
+          decoration: const InputDecoration(
+            hintText: 'Email de votre ami',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await _sendFriendRequest(context, emailController.text.trim());
+              if (context.mounted) Navigator.pop(context);
+            },
+            child: const Text('Envoyer'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _sendFriendRequest(BuildContext context, String friendEmail) async {
+    try {
+      // Chercher l'utilisateur par email
+      final QuerySnapshot userQuery = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: friendEmail)
+          .limit(1)
+          .get();
+
+      if (userQuery.docs.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Utilisateur non trouvé')),
+          );
+        }
+        return;
+      }
+
+      final friendDoc = userQuery.docs.first;
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) return;
+
+      // Vérifier si la demande existe déjà
+      final existingRequest = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(friendDoc.id)
+          .collection('friendRequests')
+          .doc(currentUser.uid)
+          .get();
+
+      if (existingRequest.exists) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Demande déjà envoyée')),
+          );
+        }
+        return;
+      }
+
+      // Récupérer les données de l'utilisateur courant
+      final currentUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+
+      // Envoyer la demande d'ami
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(friendDoc.id)
+          .collection('friendRequests')
+          .doc(currentUser.uid)
+          .set({
+        'senderId': currentUser.uid,
+        'senderName': currentUserDoc.data()?['name'] ?? 'Utilisateur',
+        'senderPhotoUrl': currentUserDoc.data()?['photoUrl'],
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Demande d\'ami envoyée')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors de l\'envoi de la demande')),
+        );
+      }
+    }
   }
 }
