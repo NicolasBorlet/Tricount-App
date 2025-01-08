@@ -103,7 +103,10 @@ class ExpensesView extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: GroupedExpensesList(expenses: expenses),
+              child: GroupedExpensesList(
+                expenses: expenses,
+                tricountId: tricountId,
+              ),
             ),
           ],
         );

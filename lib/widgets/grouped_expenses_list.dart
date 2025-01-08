@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'expense_detail_sheet.dart';
 
 class GroupedExpensesList extends StatelessWidget {
   final List<QueryDocumentSnapshot> expenses;
+  final String tricountId;
 
   const GroupedExpensesList({
     super.key,
     required this.expenses,
+    required this.tricountId,
   });
 
   String _formatDate(DateTime date) {
@@ -81,6 +84,17 @@ class GroupedExpensesList extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => ExpenseDetailSheet(
+                      expense: data,
+                      tricountId: tricountId,
+                    ),
+                  );
+                },
               );
             }),
           ],
