@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 class PhotosView extends StatefulWidget {
   final String tricountId;
@@ -19,30 +22,72 @@ class PhotosView extends StatefulWidget {
 class _PhotosViewState extends State<PhotosView> {
   final ImagePicker _picker = ImagePicker();
 
+  Future<File?> compressImage(File file) async {
+    final dir = await getTemporaryDirectory();
+    final targetPath = p.join(dir.path, '${DateTime.now().millisecondsSinceEpoch}.jpg');
+
+    var result = await FlutterImageCompress.compressAndGetFile(
+      file.path,
+      targetPath,
+      quality: 70, // Qualité de compression (0-100)
+      format: CompressFormat.jpeg,
+    );
+
+    return result != null ? File(result.path) : null;
+  }
+
   Future<void> _pickAndUploadImage() async {
     try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920, // Limite la largeur max
+        maxHeight: 1080, // Limite la hauteur max
+        imageQuality: 85, // Qualité de l'image (0-100)
+      );
+
       if (image == null) return;
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Upload en cours...')),
+        const SnackBar(content: Text('Compression et upload en cours...')),
       );
+
+      // Compression de l'image
+      final File originalFile = File(image.path);
+      final File? compressedFile = await compressImage(originalFile);
+
+      if (compressedFile == null) {
+        throw Exception('Erreur lors de la compression');
+      }
 
       final storageRef = FirebaseStorage.instance
           .ref()
-          .child(widget.tricountId);
+          .child('tricounts/${widget.tricountId}');
 
       final String fileName = '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
       final imageRef = storageRef.child(fileName);
 
-      await imageRef.putFile(File(image.path));
+      // Upload du fichier compressé
+      await imageRef.putFile(
+        compressedFile,
+        SettableMetadata(
+          contentType: 'image/jpeg',
+          customMetadata: {
+            'originalName': image.name,
+            'compressed': 'true',
+          },
+        ),
+      );
+
+      // Suppression du fichier temporaire
+      await compressedFile.delete();
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Photo ajoutée avec succès')),
       );
     } catch (e) {
+      print('Erreur lors de l\'upload: $e'); // Debug
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Erreur lors de l\'upload')),
@@ -60,7 +105,7 @@ class _PhotosViewState extends State<PhotosView> {
 
       final storageRef = FirebaseStorage.instance
           .ref()
-          .child(widget.tricountId);
+          .child('tricounts/${widget.tricountId}');
 
       final ListResult result = await storageRef.listAll();
       final urls = await Future.wait(
