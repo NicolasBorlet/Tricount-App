@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 import '../widgets/expenses_view.dart';
 import '../widgets/balance_view.dart';
 import '../widgets/photos_view.dart';
+import '../services/photo_service.dart';
 
 class TricountDetailScreen extends StatefulWidget {
   final String tricountId;
@@ -25,6 +27,7 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
     String? paidBy;
     String? value;
     DateTime selectedDate = DateTime.now();
+    XFile? selectedImage;
     StateSetter? dialogState;
 
     await showDialog(
@@ -65,13 +68,11 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
                       onPressed: () async {
                         final DateTime? picked = await showDatePicker(
                           context: context,
-                          initialDate: selectedDate.isAfter(DateTime(2025))
-                              ? DateTime(2025)
-                              : selectedDate,
+                          initialDate: selectedDate,
                           firstDate: DateTime(2000),
-                          lastDate: DateTime(2025, 12, 31),
+                          lastDate: DateTime(2025),
                         );
-                        if (picked != null && picked != selectedDate) {
+                        if (picked != null) {
                           dialogState?.call(() {
                             selectedDate = picked;
                           });
@@ -82,6 +83,19 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final image = await PhotoService.pickImage();
+                    if (image != null) {
+                      dialogState?.call(() {
+                        selectedImage = image;
+                      });
+                    }
+                  },
+                  icon: const Icon(Icons.add_a_photo),
+                  label: Text(selectedImage != null ? 'Photo sélectionnée' : 'Ajouter une photo'),
                 ),
               ],
             ),
@@ -94,7 +108,9 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
                 onPressed: () async {
                   if (expenseName?.isNotEmpty ?? false) {
                     final currentUser = FirebaseAuth.instance.currentUser;
-                    await FirebaseFirestore.instance
+
+                    // Créer d'abord la dépense
+                    final expenseRef = await FirebaseFirestore.instance
                         .collection('tricounts')
                         .doc(widget.tricountId)
                         .collection('expenses')
@@ -105,6 +121,20 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
                           'value': value,
                           'createdAt': Timestamp.fromDate(selectedDate),
                         });
+
+                    // Upload la photo si elle existe
+                    if (selectedImage != null) {
+                      final photoUrl = await PhotoService.uploadExpenseImage(
+                        widget.tricountId,
+                        expenseRef.id,
+                        selectedImage!,
+                      );
+
+                      if (photoUrl != null) {
+                        await expenseRef.update({'photoUrl': photoUrl});
+                      }
+                    }
+
                     if (context.mounted) Navigator.pop(context);
                   }
                 },
