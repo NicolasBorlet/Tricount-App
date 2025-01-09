@@ -77,10 +77,7 @@ A Flutter application for managing shared expenses between friends, roommates, o
   2. Detailed payment suggestions
 
 ### Multi-language Support
-- English
-- French
-- Spanish (partial)
-- Easily extensible to more languages
+- Implementation i18n
 
 ### Real-time Updates
 - Live updates for:
@@ -96,21 +93,13 @@ A Flutter application for managing shared expenses between friends, roommates, o
   - Notifications/Requests
   - Profile
 
-### Security
-- Secure Firebase integration
-- Protected routes
-- Data validation
-- Error handling
-
 ### UI/UX Features
 - Material Design 3
 - Responsive layout
 - Loading indicators
 - Error messages
 - Confirmation dialogs
-- Pull-to-refresh
-- Smooth animations
-- Cross-platform support (iOS, Android, Web)
+- Cross-platform support (iOS, Android)
 
 ## Technical Details
 
@@ -146,9 +135,3 @@ A Flutter application for managing shared expenses between friends, roommates, o
 - cloud_firestore
 - flutter_localizations
 - (other dependencies in pubspec.yaml)
-
-## Contributing
-Feel free to submit issues and enhancement requests.
-
-## License
-This project is licensed under the terms specified in the LICENSE file.
