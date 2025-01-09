@@ -43,6 +43,8 @@ class DefaultFirebaseOptions {
     }
   }
 
+  // Fake options, change these to your Firebase project's options
+
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBTtqegCKi2EN7qdc_x9nkW2fH2ki4HSog',
     appId: '1:618598999953:web:13b36fe4d47311c4259c30',

@@ -62,6 +62,11 @@ A Flutter application for managing shared expenses between friends, roommates, o
 - Filter expenses by participant
 - Real-time expense updates
 
+### Expense justification
+- Add image of the expense
+- See the justification in Image section
+- See the justification in expense detail
+
 ### Balance Calculation
 - Automatic balance calculation for all participants
 - View individual balances

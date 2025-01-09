@@ -220,7 +220,7 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
           .doc(widget.tricountId)
           .get();
 
-      final data = tricountDoc.data() as Map<String, dynamic>?;
+      final data = tricountDoc.data();
       final List<String> participantIds = List<String>.from(data?['participantIds'] ?? []);
 
       if (participantIds.contains(userId)) {
@@ -311,7 +311,7 @@ class _TricountDetailScreenState extends State<TricountDetailScreen> {
           .doc(widget.tricountId);
 
       final tricountDoc = await tricountRef.get();
-      final data = tricountDoc.data() as Map<String, dynamic>?;
+      final data = tricountDoc.data();
 
       final List<String> participantIds = List<String>.from(data?['participantIds'] ?? []);
       final List<Map<String, dynamic>> participants = List<Map<String, dynamic>>.from(data?['participants'] ?? []);

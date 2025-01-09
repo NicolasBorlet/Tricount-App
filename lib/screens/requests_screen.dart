@@ -310,7 +310,7 @@ class _TricountInvitesTab extends StatelessWidget {
           .get();
 
       final tricountDoc = await tricountRef.get();
-      final data = tricountDoc.data() as Map<String, dynamic>?;
+      final data = tricountDoc.data();
 
       final List<String> participantIds = List<String>.from(data?['participantIds'] ?? []);
       final List<Map<String, dynamic>> participants = List<Map<String, dynamic>>.from(data?['participants'] ?? []);
